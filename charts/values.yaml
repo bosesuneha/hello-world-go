@@ -1,4 +1,4 @@
-# Default values for goapp.
+# Default values for hello-world-go.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
@@ -9,7 +9,7 @@ namespace: default
 containerPort: 80
 
 image:
-  repository: goapp
+  repository: hello-world-go
   tag: latest
   pullPolicy: Always
 

@@ -1,8 +1,8 @@
 image:
-  repository: "goapp"
-  pullPolicy: Always
-  tag: "latest"
+    repository: testWorkflowACR.azurecr.io/hello-world-go
+    pullPolicy: Always
+    tag: latest
 service:
-  annotations: {}
-  type: LoadBalancer
-  port: "80"
+    annotations: {}
+    type: LoadBalancer
+    port: "80"
