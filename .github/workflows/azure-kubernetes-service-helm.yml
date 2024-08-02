@@ -51,7 +51,7 @@ env:
   CHART_PATH: ./charts
   CHART_OVERRIDE_PATH: ./charts/production.yaml
   CHART_OVERRIDES: replicas=2
-  NAMESPACE: default
+  NAMESPACE: test-ns
 
 jobs:
   buildImage:
