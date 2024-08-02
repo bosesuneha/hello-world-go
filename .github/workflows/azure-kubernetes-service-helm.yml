@@ -33,7 +33,7 @@
 # For more samples to get started with GitHub Action workflows to deploy to Azure, refer to https://github.com/Azure/actions-workflow-samples
 # For more options with the actions used below please refer to https://github.com/Azure/login
 
-name: test-helm-deployment
+name: test-helm-workflow
 
 on:
   push:
@@ -46,11 +46,11 @@ env:
   CONTAINER_NAME: hello-world-go
   CLUSTER_RESOURCE_GROUP: sunehabose
   CLUSTER_NAME: test-workflow-cluster
-  DOCKER_FILE: Dockerfile
-  BUILD_CONTEXT_PATH: ./
-  CHART_PATH: charts
-  CHART_OVERRIDE_PATH: charts/values.yaml
-  CHART_OVERRIDES: replicas:3
+  DOCKER_FILE: ./Dockerfile
+  BUILD_CONTEXT_PATH: .
+  CHART_PATH: ./charts
+  CHART_OVERRIDE_PATH: ./charts/production.yaml
+  CHART_OVERRIDES: replicas=2
   NAMESPACE: default
 
 jobs:
@@ -98,7 +98,7 @@ jobs:
       - name: Set up kubelogin for non-interactive login
         uses: azure/use-kubelogin@v1
         with:
-          kubelogin-version: "v0.0.25"
+          kubelogin-version: 'v0.0.25'
 
       # Retrieves your Azure Kubernetes Service cluster's kubeconfig file
       - name: Get K8s context
@@ -106,8 +106,8 @@ jobs:
         with:
           resource-group: ${{ env.CLUSTER_RESOURCE_GROUP }}
           cluster-name: ${{ env.CLUSTER_NAME }}
-          admin: "false"
-          use-kubelogin: "true"
+          admin: 'false'
+          use-kubelogin: 'true'
 
       # Checks if the AKS cluster is private
       - name: Is private cluster
@@ -115,18 +115,6 @@ jobs:
         run: |
           result=$(az aks show --resource-group ${{ env.CLUSTER_RESOURCE_GROUP }} --name ${{ env.CLUSTER_NAME }} --query "apiServerAccessProfile.enablePrivateCluster")
           echo "PRIVATE_CLUSTER=$result" >> "$GITHUB_OUTPUT"
-
-      # Debug working directory
-      - name: working directory
-        run: pwd
-
-      # List files in the current directory for debugging
-      - name: List files in the root directory
-        run: ls -alh
-
-      # Recursively list all files and directories for detailed debugging
-      - name: List all files recursively
-        run: ls -R
 
       # Deploys application
       - name: Deploy application on private cluster
