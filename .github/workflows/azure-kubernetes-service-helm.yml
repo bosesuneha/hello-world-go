@@ -116,6 +116,14 @@ jobs:
           result=$(az aks show --resource-group ${{ env.CLUSTER_RESOURCE_GROUP }} --name ${{ env.CLUSTER_NAME }} --query "apiServerAccessProfile.enablePrivateCluster")
           echo "PRIVATE_CLUSTER=$result" >> "$GITHUB_OUTPUT"
 
+      # List files in the current directory for debugging
+      - name: List files in the root directory
+        run: ls -alh
+
+      # Recursively list all files and directories for detailed debugging
+      - name: List all files recursively
+        run: ls -R
+
       # Deploys application
       - name: Deploy application on private cluster
         if: steps.isPrivate.outputs.PRIVATE_CLUSTER == 'true'
