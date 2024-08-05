@@ -46,12 +46,12 @@ env:
   CONTAINER_NAME: hello-world-go
   CLUSTER_RESOURCE_GROUP: sunehabose
   CLUSTER_NAME: test-pvt-cluster
-  DOCKER_FILE: Dockerfile
+  DOCKER_FILE: ./Dockerfile
   BUILD_CONTEXT_PATH: .
-  CHART_PATH: charts
-  CHART_OVERRIDE_PATH: charts/values.yaml
+  CHART_PATH: ./charts
+  CHART_OVERRIDE_PATH: ./charts/production.yaml
   CHART_OVERRIDES: replicas=2
-  NAMESPACE: test-ns
+  NAMESPACE: default
 
 jobs:
   buildImage:
@@ -98,7 +98,7 @@ jobs:
       - name: Set up kubelogin for non-interactive login
         uses: azure/use-kubelogin@v1
         with:
-          kubelogin-version: "v0.0.25"
+          kubelogin-version: 'v0.0.25'
 
       # Retrieves your Azure Kubernetes Service cluster's kubeconfig file
       - name: Get K8s context
@@ -106,8 +106,8 @@ jobs:
         with:
           resource-group: ${{ env.CLUSTER_RESOURCE_GROUP }}
           cluster-name: ${{ env.CLUSTER_NAME }}
-          admin: "false"
-          use-kubelogin: "true"
+          admin: 'false'
+          use-kubelogin: 'true'
 
       # Checks if the AKS cluster is private
       - name: Is private cluster
@@ -118,9 +118,10 @@ jobs:
 
       # Deploys application
       - name: Deploy application on private cluster
-        if: steps.isPrivate.outputs.PRIVATE_CLUSTER == 'true'
+        if : steps.isPrivate.outputs.PRIVATE_CLUSTER == 'true'
         run: az aks command invoke --resource-group ${{ env.CLUSTER_RESOURCE_GROUP }} --name ${{ env.CLUSTER_NAME }} --command "helm upgrade --wait -i -f ${{ env.CHART_OVERRIDE_PATH }} --set ${{ env.CHART_OVERRIDES }} automated-deployment ${{ env.CHART_PATH }}" --file .
 
       - name: Deploy application on public cluster
-        if: steps.isPrivate.outputs.PRIVATE_CLUSTER == 'false'
+        if : steps.isPrivate.outputs.PRIVATE_CLUSTER == 'false'
         run: helm upgrade --wait -i -f ${{ env.CHART_OVERRIDE_PATH }} --set ${{ env.CHART_OVERRIDES }} automated-deployment ${{ env.CHART_PATH }} --namespace ${{ env.NAMESPACE }}
+

@@ -1,5 +1,5 @@
 image:
-    repository: testWorkflowACR.azurecr.io/hello-world-go
+    repository: testDevHubACR.azurecr.io/hello-world-go
     pullPolicy: Always
     tag: latest
 service:
