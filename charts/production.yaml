@@ -1,5 +1,5 @@
 image:
-    repository: pvtAksAcr.azurecr.io/hello-world-go
+    repository: acrpvt.privatelink.azurecr.io/hello-world-go
     pullPolicy: Always
     tag: latest
 service:
