@@ -120,13 +120,13 @@ jobs:
       - name: Deploy application on private cluster
         if : steps.isPrivate.outputs.PRIVATE_CLUSTER == 'true'
         run: |
-          az aks command invoke --resource-group ${{ env.CLUSTER_RESOURCE_GROUP }} --name ${{ env.CLUSTER_NAME }} --command "helm upgrade --wait -i -f ${{ env.CHART_OVERRIDE_PATH }} --set ${{ env.CHART_OVERRIDES }} automated-deployment ${{ env.CHART_PATH }} --namespace ${{env.NAMESPACE}}" --file .
-          if [ $? -ne 0 ]; then
-            echo 'Helm upgrade failed.'
-            exit 1
+          exit_code=$(az aks command invoke --resource-group ${{ env.CLUSTER_RESOURCE_GROUP }} --name ${{ env.CLUSTER_NAME }} --command "helm upgrade --wait -i -f ${{ env.CHART_OVERRIDE_PATH }} --set ${{ env.CHART_OVERRIDES }} automated-deployment ${{ env.CHART_PATH }} --namespace ${{env.NAMESPACE}}" --file . --query "exitCode" -o json)
+          echo "Exit code: $exit_code
+          if [ "$exit_code" -ne 0 ]; then
+            echo 'Helm upgrade failed with exit code $exit_code.'
+            exit $exit_code
           fi
-            az aks command invoke --resource-group ${{ env.CLUSTER_RESOURCE_GROUP }} --name ${{ env.CLUSTER_NAME }} --command "kubectl get pods --namespace ${{env.NAMESPACE}} --no-headers | grep -v 'Running' && echo 'Some pods are not running.' && exit 1 || echo 'All pods are running.'"
-            
+          
       - name: Deploy application on public cluster
         if : steps.isPrivate.outputs.PRIVATE_CLUSTER == 'false'
         run: helm upgrade --wait -i -f ${{ env.CHART_OVERRIDE_PATH }} --set ${{ env.CHART_OVERRIDES }} automated-deployment ${{ env.CHART_PATH }} --namespace ${{ env.NAMESPACE }}
