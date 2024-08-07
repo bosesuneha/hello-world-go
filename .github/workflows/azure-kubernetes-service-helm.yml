@@ -125,7 +125,7 @@ jobs:
             echo 'Helm upgrade failed.'
             exit 1
           fi
-          az aks command invoke --resource-group ${{ env.CLUSTER_RESOURCE_GROUP }} --name ${{ env.CLUSTER_NAME }} --command "kubectl get pods --namespace ${{env.NAMESPACE}} --no-headers | grep -v 'Running' && echo 'Some pods are not running.' && exit 1 || echo 'All pods are running.'"
+            az aks command invoke --resource-group ${{ env.CLUSTER_RESOURCE_GROUP }} --name ${{ env.CLUSTER_NAME }} --command "kubectl get pods --namespace ${{env.NAMESPACE}} --no-headers | grep -v 'Running' && echo 'Some pods are not running.' && exit 1 || echo 'All pods are running.'"
             
       - name: Deploy application on public cluster
         if : steps.isPrivate.outputs.PRIVATE_CLUSTER == 'false'
