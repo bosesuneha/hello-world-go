@@ -121,7 +121,10 @@ jobs:
         if : steps.isPrivate.outputs.PRIVATE_CLUSTER == 'true'
         run: |
           az aks command invoke --resource-group ${{ env.CLUSTER_RESOURCE_GROUP }} --name ${{ env.CLUSTER_NAME }} --command "helm upgrade --wait -i -f ${{ env.CHART_OVERRIDE_PATH }} --set ${{ env.CHART_OVERRIDES }} automated-deployment ${{ env.CHART_PATH }} --namespace ${{env.NAMESPACE}}" --file .
-          az aks command invoke --resource-group ${{ env.CLUSTER_RESOURCE_GROUP }} --name ${{ env.CLUSTER_NAME }} --command "kubectl get pods --namespace ${{ env.NAMESPACE }} -o json | jq -e '.items[] | select(.status.phase != \"Running\") | \"\(.metadata.name) is not running: \(.status.phase)\"' || exit 1"
+          if [ \$? -ne 0 ]; then
+            echo 'Helm upgrade failed.'
+            exit 1
+        #az aks command invoke --resource-group ${{ env.CLUSTER_RESOURCE_GROUP }} --name ${{ env.CLUSTER_NAME }} --command "kubectl get pods --namespace ${{ env.NAMESPACE }} -o json | jq -e '.items[] | select(.status.phase != \"Running\") | \"\(.metadata.name) is not running: \(.status.phase)\"' || exit 1"
 
       - name: Deploy application on public cluster
         if : steps.isPrivate.outputs.PRIVATE_CLUSTER == 'false'
