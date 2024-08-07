@@ -42,7 +42,7 @@ on:
 
 env:
   ACR_RESOURCE_GROUP: sunehabose
-  AZURE_CONTAINER_REGISTRY: acrpvt
+  AZURE_CONTAINER_REGISTRY: testACRDraft
   CONTAINER_NAME: hello-world-go
   CLUSTER_RESOURCE_GROUP: sunehabose
   CLUSTER_NAME: pvt-aks-cluster

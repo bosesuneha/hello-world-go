@@ -1,5 +1,5 @@
 image:
-    repository: acrpvt.azurecr.io/hello-world-go
+    repository: testacrdraft.azurecr.io/hello-world-go
     pullPolicy: Always
     tag: latest
 service:
