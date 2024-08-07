@@ -45,7 +45,7 @@ env:
   AZURE_CONTAINER_REGISTRY: testACRDraft
   CONTAINER_NAME: hello-world-go
   CLUSTER_RESOURCE_GROUP: sunehabose
-  CLUSTER_NAME: pvt-aks-cluster
+  CLUSTER_NAME: test-pvt-cluster-1
   DOCKER_FILE: ./Dockerfile
   BUILD_CONTEXT_PATH: .
   CHART_PATH: ./charts
