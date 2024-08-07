@@ -50,7 +50,7 @@ env:
   BUILD_CONTEXT_PATH: .
   CHART_PATH: ./charts
   CHART_OVERRIDE_PATH: ./charts/production.yaml
-  CHART_OVERRIDES: replicas=2, image.tag=${{ github.sha }}
+  CHART_OVERRIDES: replicas=2,image.tag=${{ github.sha }}
   NAMESPACE: default
 
 jobs:
