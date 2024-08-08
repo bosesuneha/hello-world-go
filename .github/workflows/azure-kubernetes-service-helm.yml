@@ -45,12 +45,12 @@ env:
   AZURE_CONTAINER_REGISTRY: testACRDraft
   CONTAINER_NAME: hello-world-go
   CLUSTER_RESOURCE_GROUP: sunehabose
-  CLUSTER_NAME: test-pub-cluster
+  CLUSTER_NAME: test-pvt-cluster-1
   DOCKER_FILE: ./Dockerfile
   BUILD_CONTEXT_PATH: .
   CHART_PATH: ./charts
   CHART_OVERRIDE_PATH: ./charts/production.yaml
-  CHART_OVERRIDES: replicas=2,image.tag=${{ github.sha }}
+  CHART_OVERRIDES: replicas=2
   NAMESPACE: default
 
 jobs:
@@ -119,7 +119,15 @@ jobs:
       # Deploys application
       - name: Deploy application on private cluster
         if : steps.isPrivate.outputs.PRIVATE_CLUSTER == 'true'
-        run: az aks command invoke --resource-group ${{ env.CLUSTER_RESOURCE_GROUP }} --name ${{ env.CLUSTER_NAME }} --command "helm upgrade --wait -i -f ${{ env.CHART_OVERRIDE_PATH }} --set ${{ env.CHART_OVERRIDES }} automated-deployment ${{ env.CHART_PATH }} --namespace ${{env.NAMESPACE}}" --file .
+        run: |
+          alias aks_command = 'az aks command invoke --resource-group ${{ env.CLUSTER_RESOURCE_GROUP }} --name ${{ env.CLUSTER_NAME }} --command'
+          command_id = $(aks_command "helm upgrade --wait -i -f ${{ env.CHART_OVERRIDE_PATH }} --set ${{ env.CHART_OVERRIDES }} --set image.tag=${{ github.sha }} automated-deployment ${{ env.CHART_PATH }} --namespace ${{env.NAMESPACE}} --timeout 270s" --file . --query id -o tsv)
+          exitCode = $(az aks command result --resource-group ${{ env.CLUSTER_RESOURCE_GROUP }} --name ${{ env.CLUSTER_NAME }} --command-id $command_id --query exitCode -o tsv)
+
+          if [ $exitCode -ne 0 ]; then
+            echo "Helm upgrade failed"
+            exit $exitCode
+          fi
 
       - name: Deploy application on public cluster
         if : steps.isPrivate.outputs.PRIVATE_CLUSTER == ''
