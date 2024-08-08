@@ -120,8 +120,15 @@ jobs:
       - name: Deploy application on private cluster
         if : steps.isPrivate.outputs.PRIVATE_CLUSTER == 'true'
         run: |
-          command_id=$(az aks command invoke --resource-group ${{ env.CLUSTER_RESOURCE_GROUP }} --name ${{ env.CLUSTER_NAME }} --command "helm upgrade --wait -i -f ${{ env.CHART_OVERRIDE_PATH }} --set ${{ env.CHART_OVERRIDES }} automated-deployment ${{ env.CHART_PATH }} --namespace ${{env.NAMESPACE}}" --file . --query id -o tsv)
+          command_id=$(az aks command invoke --resource-group ${{ env.CLUSTER_RESOURCE_GROUP }} --name ${{ env.CLUSTER_NAME }} --command "helm upgrade --wait -i -f ${{ env.CHART_OVERRIDE_PATH }} --set ${{ env.CHART_OVERRIDES }} automated-deployment ${{ env.CHART_PATH }} --namespace ${{env.NAMESPACE}}" --file ${{ env.CHART_PATH }} --query id -o tsv)
           exit_code=$(az aks command result --resource-group ${{ env.CLUSTER_RESOURCE_GROUP }} --name ${{ env.CLUSTER_NAME }} --command-id $command_id --query exitCode -o tsv)
+          echo "Exit code: $exit_code"
+
+          if [[ -z "$exit_code" ]]; then
+            echo "Failed to retrieve exit code."
+            exit 1
+          fi
+          
           if [ $exit_code -ne 0 ]; then
             echo "Deployment failed with exit code $exit_code"
             exit 1
