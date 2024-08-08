@@ -120,8 +120,7 @@ jobs:
       - name: Deploy application on private cluster
         if : steps.isPrivate.outputs.PRIVATE_CLUSTER == 'true'
         run: |
-          alias aks_command = 'az aks command invoke --resource-group ${{ env.CLUSTER_RESOURCE_GROUP }} --name ${{ env.CLUSTER_NAME }} --command'
-          command_id = $(aks_command "helm upgrade --wait -i -f ${{ env.CHART_OVERRIDE_PATH }} --set ${{ env.CHART_OVERRIDES }} --set image.tag=${{ github.sha }} automated-deployment ${{ env.CHART_PATH }} --namespace ${{env.NAMESPACE}} --timeout 270s" --file . --query id -o tsv)
+          command_id = $(az aks command invoke --resource-group ${{ env.CLUSTER_RESOURCE_GROUP }} --name ${{ env.CLUSTER_NAME }} --command "helm upgrade --wait -i -f ${{ env.CHART_OVERRIDE_PATH }} --set ${{ env.CHART_OVERRIDES }} --set image.tag=${{ github.sha }} automated-deployment ${{ env.CHART_PATH }} --namespace ${{env.NAMESPACE}} --timeout 270s" --file . --query id -o tsv)
           exitCode = $(az aks command result --resource-group ${{ env.CLUSTER_RESOURCE_GROUP }} --name ${{ env.CLUSTER_NAME }} --command-id $command_id --query exitCode -o tsv)
 
           if [ $exitCode -ne 0 ]; then
