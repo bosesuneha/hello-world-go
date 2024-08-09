@@ -1,4 +1,4 @@
-FROM golang:1.22.3 AS builder
+FROM golang:1.20 AS builder
 ENV PORT 80
 EXPOSE 80
 
@@ -10,5 +10,5 @@ RUN CGO_ENABLED=0 GOOS=linux go build -v -o app-binary
 
 FROM gcr.io/distroless/static-debian12
 WORKDIR /app
-COPY --from=builder /build/app-binary .
+COPY --from=builder /build/app-binary . 
 CMD ["/app/app-binary"]
