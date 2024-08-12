@@ -45,13 +45,13 @@ env:
   AZURE_CONTAINER_REGISTRY: testACRDraft
   CONTAINER_NAME: hello-world-go
   CLUSTER_RESOURCE_GROUP: sunehabose
-  CLUSTER_NAME: test-pvt-cluster-1
+  CLUSTER_NAME: test-pub-cluster
   DOCKER_FILE: ./Dockerfile
   BUILD_CONTEXT_PATH: .
   CHART_PATH: ./charts
   CHART_OVERRIDE_PATH: ./charts/production.yaml
   CHART_OVERRIDES: replicas=2
-  NAMESPACE: default
+  NAMESPACE: test-ns
 
 jobs:
   buildImage:
@@ -121,9 +121,15 @@ jobs:
         if : steps.isPrivate.outputs.PRIVATE_CLUSTER == 'true'
         run: |
           command_id=$(az aks command invoke --resource-group ${{ env.CLUSTER_RESOURCE_GROUP }} --name ${{ env.CLUSTER_NAME }} --command "helm upgrade --wait -i -f ${{ env.CHART_OVERRIDE_PATH }} --set ${{ env.CHART_OVERRIDES }} --set image.tag=${{ github.sha }} automated-deployment ${{ env.CHART_PATH }} --namespace ${{env.NAMESPACE}} --timeout 240s" --file . --query id -o tsv)
-          az aks command result --resource-group ${{ env.CLUSTER_RESOURCE_GROUP }} --name ${{ env.CLUSTER_NAME }} --command-id $command_id
-                   
+          result=$(az aks command result --resource-group ${{ env.CLUSTER_RESOURCE_GROUP }} --name ${{ env.CLUSTER_NAME }} --command-id $command_id)
+          echo "Helm upgrade result: $result"
+          exitCode=$(az aks command result --resource-group ${{ env.CLUSTER_RESOURCE_GROUP }} --name ${{ env.CLUSTER_NAME }} --command-id $command_id --query exitCode -o tsv)
+          
+          if [ $exitCode -ne 0 ]; then
+            exit $exitCode
+          fi
+
       - name: Deploy application on public cluster
         if : steps.isPrivate.outputs.PRIVATE_CLUSTER == ''
-        run: helm upgrade --wait -i -f ${{ env.CHART_OVERRIDE_PATH }} --set ${{ env.CHART_OVERRIDES }} automated-deployment ${{ env.CHART_PATH }} --namespace ${{ env.NAMESPACE }}
+        run: helm upgrade --wait -i -f ${{ env.CHART_OVERRIDE_PATH }} --set ${{ env.CHART_OVERRIDES }} --set image.tag=${{ github.sha }} automated-deployment ${{ env.CHART_PATH }} --namespace ${{ env.NAMESPACE }}
 
