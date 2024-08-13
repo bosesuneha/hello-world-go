@@ -132,5 +132,5 @@ jobs:
       - name: Deploy application on public cluster
         if : steps.isPrivate.outputs.PRIVATE_CLUSTER == ''
         run: |
-          helm upgrade --wait -i -f ${{ env.CHART_OVERRIDE_PATH }} --set ${{ env.CHART_OVERRIDES }} --set image.tag=${{ github.sha }} automated-deployment ${{ env.CHART_PATH }} --create-namespace
+          helm upgrade --wait -i -f ${{ env.CHART_OVERRIDE_PATH }} --set ${{ env.CHART_OVERRIDES }} --set image.tag=${{ github.sha }} automated-deployment ${{ env.CHART_PATH }} --create-namespace --debug
 
