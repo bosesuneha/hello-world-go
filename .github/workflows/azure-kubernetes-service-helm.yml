@@ -51,7 +51,7 @@ env:
   CHART_PATH: ./charts
   CHART_OVERRIDE_PATH: ./charts/production.yaml
   CHART_OVERRIDES: replicas=2
-  NAMESPACE: test-ns
+  NAMESPACE: default
 
 jobs:
   buildImage:
@@ -132,6 +132,6 @@ jobs:
       - name: Deploy application on public cluster
         if : steps.isPrivate.outputs.PRIVATE_CLUSTER == ''
         run: |
-          helm template automated-deployment ./charts -f ./charts/production.yaml --set replicas=2 --set image.tag=bca98ddf0d7da2cae5015d61d8dd1b8e56a83e1a 
+          helm template automated-deployment ./charts -f ./charts/production.yaml --set replicas=2 --set image.tag=bca98ddf0d7da2cae5015d61d8dd1b8e56a83e1a
           helm upgrade --wait -i -f ${{ env.CHART_OVERRIDE_PATH }} --set ${{ env.CHART_OVERRIDES }} --set image.tag=${{ github.sha }} automated-deployment ${{ env.CHART_PATH }} --namespace ${{ env.NAMESPACE }} --create-namespace --debug
 

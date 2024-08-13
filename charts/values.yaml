@@ -4,7 +4,7 @@
 
 replicaCount: 1
 
-namespace: test-ns
+namespace: default
 
 containerPort: 80
 
